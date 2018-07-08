@@ -1,0 +1,17 @@
+ R←Test_002(stopFlag batchFlag);⎕TRAP;filename;tempFolder;list;success
+⍝ Process a file with a particular extension (".markdown") with just the source folder.
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder←∆CreateFolder↑⎕SI
+ filename←tempFolder,'\readme'
+ 'TestDocs\readme.md'##.FilesAndDirs.CopyTo filename,'.markdown'
+ (success list)←##.Markdown2HTML.ProcessFiles'readme.markdown'tempFolder ⍬
+ →GoToTidyUp 0=##.FilesAndDirs.IsFile filename,'.html'
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir tempFolder
+⍝Done

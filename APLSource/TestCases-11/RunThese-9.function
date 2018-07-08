@@ -1,0 +1,3 @@
+ {r}←RunThese ids
+⍝ Run just the specified tests
+ r←ids #.Tester.RunTheseIn ⎕THIS

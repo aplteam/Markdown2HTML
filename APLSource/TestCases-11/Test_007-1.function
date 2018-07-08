@@ -1,0 +1,22 @@
+ R←Test_007(stopFlag batchFlag);⎕TRAP;list;success;tempFolder1;tempFolder2
+⍝ Process a two files with a config file .Markdown2HTML (ruling the target dicrectory).
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder1←∆CreateFolder↑⎕SI
+ tempFolder2←∆CreateFolder(↑⎕SI),'_target'
+ 'TestDocs\readme.md'##.FilesAndDirs.CopyTo tempFolder1,'\readme.md'
+ 'TestDocs\LeanPubExtensions.md'##.FilesAndDirs.CopyTo tempFolder1,'\LeanPubExtensions.md'
+ ##.APLTreeUtils.WriteUtf8File(tempFolder1,'\.Markdown2HTML')(⊂'..\',(↑⎕SI),'_target')
+ (success list)←##.Markdown2HTML.ProcessFiles('readme.md' 'LeanPubExtensions')tempFolder1 ⍬
+ →GoToTidyUp 1=##.FilesAndDirs.IsFile tempFolder1,'\readme.html'
+ →GoToTidyUp 1=##.FilesAndDirs.IsFile tempFolder1,'\LeanPubExtensions.html'
+ →GoToTidyUp 0=##.FilesAndDirs.IsFile tempFolder2,'\readme.html'
+ →GoToTidyUp 0=##.FilesAndDirs.IsFile tempFolder2,'\LeanPubExtensions.html'
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir¨tempFolder1 tempFolder2
+⍝Done

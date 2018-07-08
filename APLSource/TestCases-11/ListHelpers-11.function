@@ -1,0 +1,8 @@
+ r←ListHelpers;list;this
+⍝ Lists all helpers available from the `Tester` class.
+⍝ These are all established by calling the `EstablishHelpers' method.
+ r←0 2⍴' '
+ list←,¨'Run' 'RunDebug' 'RunThese' 'RunTheseIn' 'RunBatchTests' 'E' 'L' 'G' 'FailsIf' 'PassesIf' 'GoToTidyUp' 'RenameTestFnsTo' 'ListHelpers'
+ :For this :In list
+     r⍪←this(#.APLTreeUtils.dlb{⍺⍺{⍵↓⍨(~⎕IO)+⍵⍳'⍝'}⍺⍺ ⍵}⎕IO⊃1↓⎕NR this)
+ :EndFor

@@ -1,0 +1,7 @@
+ tempFolder←∆CreateFolder foldername
+ tempFolder←∆TestFolder,'\',foldername
+ :If ##.FilesAndDirs.IsDir tempFolder
+     ##.FilesAndDirs.RmDir tempFolder
+ :EndIf
+ 'Create!'##.FilesAndDirs.CheckPath tempFolder
+⍝Done

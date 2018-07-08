@@ -1,0 +1,21 @@
+ R←Test_006(stopFlag batchFlag);⎕TRAP;list;success;tempFolder1;tempFolder2
+⍝ Process a two files and specify a specific target folder.
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder1←∆CreateFolder↑⎕SI
+ tempFolder2←∆CreateFolder(↑⎕SI),'_target'
+ 'TestDocs\readme.md'##.FilesAndDirs.CopyTo tempFolder1,'\readme.md'
+ 'TestDocs\LeanPubExtensions.md'##.FilesAndDirs.CopyTo tempFolder1,'\LeanPubExtensions.md'
+ (success list)←##.Markdown2HTML.ProcessFiles('readme.md' 'LeanPubExtensions')tempFolder1 tempFolder2
+ →GoToTidyUp 1=##.FilesAndDirs.IsFile tempFolder1,'\readme.html'
+ →GoToTidyUp 1=##.FilesAndDirs.IsFile tempFolder1,'\LeanPubExtensions.html'
+ →GoToTidyUp 0=##.FilesAndDirs.IsFile tempFolder2,'\readme.html'
+ →GoToTidyUp 0=##.FilesAndDirs.IsFile tempFolder2,'\LeanPubExtensions.html'
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir¨tempFolder1 tempFolder2
+⍝Done

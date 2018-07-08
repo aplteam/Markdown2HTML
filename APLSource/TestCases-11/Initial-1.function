@@ -1,0 +1,6 @@
+ Initial
+ #.FilesAndDirs.PolishCurrentDir
+ #.Tester.EstablishHelpersIn ⎕THIS
+ ∆TestFolder←##.FilesAndDirs.GetTempPath,'Markdown2HTML_Tests'
+ Assert'Create!'##.FilesAndDirs.CheckPath ∆TestFolder
+⍝Done

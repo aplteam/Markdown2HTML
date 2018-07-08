@@ -1,0 +1,4 @@
+ Cleanup
+ ⎕DL 0.2
+ ##.FilesAndDirs.RmDir ∆TestFolder
+⍝Done

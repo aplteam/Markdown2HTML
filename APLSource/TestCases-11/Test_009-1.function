@@ -1,0 +1,37 @@
+ R←Test_009(stopFlag batchFlag);⎕TRAP;filename;sourcePath;success;files;css;newFilename;html
+⍝ Test a simple case with a specific CSS folder.
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ :If 1
+     R←∆Inactive        ⍝ Currently not implemented
+     :Return
+ :EndIf
+
+
+ R←∆Failed
+
+⍝⍝⍝⍝⍝⍝⍝ Code is from an old version. Probably best to rewrite this.
+
+ filename←'First'
+ sourcePath←'TestCases'
+ #.FilesAndDirs.DeleteFile(↑1 ⎕NPARTS''),sourcePath,'/',filename,'.html'
+
+ css←⎕NS''
+ css.url←(↑1 ⎕NPARTS sourcePath,'/'),'CSS'
+ css.screenCSS←'screen.css'
+ css.printCSS←'print.css'
+ (success files)←css #.Markdown2HTML.ProcessFiles filename sourcePath''
+
+ →GoToTidyUp 1≠success
+ newFilename←(↑1 ⎕NPARTS''),sourcePath,'/',filename,'.html'
+ →GoToTidyUp files≢,⊂newFilename
+ →GoToTidyUp 0=#.FilesAndDirs.Exists newFilename
+ html←#.APLTreeUtils.ReadUtf8File newFilename
+ →GoToTidyUp~∨/'font-size: 33px;'⍷∊html
+ →GoToTidyUp~∨/'font-size: 33pt;'⍷∊html
+
+ R←∆OK
+
+∆TidyUp:
+ #.FilesAndDirs.DeleteFile(↑1 ⎕NPARTS''),sourcePath,'/',filename,'.html'

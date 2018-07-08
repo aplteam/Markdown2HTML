@@ -1,0 +1,21 @@
+ R←Test_004(stopFlag batchFlag);⎕TRAP;filename;tempFolder;list;success;DMX
+⍝ Process a non-existing file; should throw an error.
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder←∆CreateFolder↑⎕SI
+ filename←tempFolder,'\doesnotexist.md'
+ :Trap 0
+     {}##.Markdown2HTML.ProcessFiles'doesnotexist.md'tempFolder ⍬
+     →GoToTidyUp 1
+ :Else
+     DMX←⎕DMX
+ :EndTrap
+ →GoToTidyUp 1≠∨/'not exist'⍷↑,/DMX.DM
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir tempFolder
+⍝Done

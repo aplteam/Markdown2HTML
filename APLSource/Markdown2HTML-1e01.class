@@ -1,0 +1,135 @@
+:Class  Markdown2HTML
+⍝ ## Overview
+⍝ This class allows the conversion of one or many Markdown files (extension ".md")
+⍝ into HTML files, by default with the same name but ".html" as extension.
+⍝
+⍝ ## The workhorse: `Run`
+⍝ This is designed to be called as a Dyalog user command.
+⍝ It must be fed with a parameter space. This parameter space isthen passed on.
+⍝
+⍝ ## Convert
+⍝ This method is doing the real work. See there for details.
+⍝ It must be fed with a parameter space.
+⍝
+⍝ ## Requirements
+⍝ This class requires Dyalog 15.0 Unicode or better.
+
+    :Include ##.APLTreeUtils
+
+    ⎕IO←1 ⋄ ⎕ML←3
+
+    ∇ r←Version
+      :Access Public Shared
+      r←(Last⍕⎕THIS)'0.0.1' '2018-07-06'
+    ∇
+
+    ∇ (success outputFilenames)←{css}ProcessFiles(filenames sourcePath targetPath);parms;bool;config
+      :Access Shared Public
+      ⍝ Takes a Markdown file and converts it into an HTML file.\
+      ⍝ Needs at least the `filenames` (with or without extension) and the `sourcePath`.\
+      ⍝ If `filename` has no extension ".md" is assumed.\
+      ⍝ `filename` must not have a path.\
+      ⍝ `targetPath` is optional: if empty it defaults to `sorcePath`.\
+      ⍝ The left argument `css` is optional. When passed it must be one of:
+      ⍝ * `⍬`. Same as not defining it at all.
+      ⍝ * A parameter space that contains three variables:
+      ⍝   * `url`: points to where the following two live. This must be specified.
+      ⍝   * `screen`: name of a CSS file that carries the CSS rules for viewing the HTML.
+      ⍝     If this is not specified then a default takes place
+      ⍝   * `print`: name of a CSS file that carries the CSS rules for printing the HTML.
+      ⍝     If this is not specified then a default takes place
+      ⍝ Returns a two-item vector:
+      ⍝ [1] Vector of Booleans, 1 indicating sucess, 0 = failure.
+      ⍝ [2] Vector of either target filenames or error messages.
+      ⍝ See the "Help" command (defined in the user command script) for more
+      ⍝ information on the switches available.
+      css←{0<⎕NC ⍵:⍎⍵ ⋄ ⍬}'css'
+      filenames←Nest filenames
+      '"filenames" must be relative = no / allowed'⎕SIGNAL 11/⍨∨/¨'/\'∘∊¨filenames
+      '`sourcePath` does not exist'⎕SIGNAL 11/⍨0=⎕NEXISTS sourcePath
+      sourcePath←'expand'##.FilesAndDirs.NormalizePath sourcePath
+      filenames←{'.'∊⍵:⍵ ⋄ ⍵,'.md'}¨filenames
+      :If ∨/bool←~⎕NEXISTS¨(sourcePath,'/')∘,¨filenames
+          11 ⎕SIGNAL⍨(⍕+/bool),' in "filenames" do not exist'
+      :EndIf
+      parms←##.MarkAPL.CreateParms
+      :If ⍬≢css
+          :If {2::0 ⋄ 1⊣⍵.⎕NL 2}css
+              parms.cssURL←css.url
+              :If 0=css.⎕NC'screenCSS'
+                  parms.screenCSS←'MarkAPL_screen.css'
+              :Else
+                  parms.screenCSS←css.screenCSS
+              :EndIf
+              :If 0=css.⎕NC'printCSS'
+                  parms.printCSS←'MarkAPL_print.css'
+              :Else
+                  parms.printCSS←css.printCSS
+              :EndIf
+          :Else
+              parms.cssURL←css
+          :EndIf
+      :Else
+          parms.cssURL←'C:\T\Projects\UserCommands\Markdown2HTML'  ⍝TODO⍝
+      :EndIf
+      :If 0∊⍴targetPath
+          :If ##.FilesAndDirs.IsFile sourcePath,'\.Markdown2HTML'
+          :AndIf ~0∊⍴config←ReadUtf8File sourcePath,'\.Markdown2HTML'
+              targetPath←sourcePath,'\',config
+          :Else
+              targetPath←sourcePath
+          :EndIf
+      :EndIf
+      targetPath←'expand'##.FilesAndDirs.NormalizePath targetPath
+      (success outputFilenames)←ProcessFiles_ filenames sourcePath targetPath parms
+    ∇
+
+    ∇ {html}←Convert ps
+    ⍝ Expects a parameter space `ps`, typically created by calling `MarkAPL.CreateParms`,
+    ⍝ and uses this to convert the Markdown input file into an HTML file.\
+    ⍝ If the input file cannot be found an error is thrown.
+    ⍝ Returns the html as result
+      :Access Shared Public
+      :If ⎕NEXISTS ps.inputFilename
+          html←ps ##.MarkAPL.Markdown2HTML''
+      :Else
+          'File does not exist'⎕SIGNAL 6
+      :EndIf
+    ∇
+
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝ Private stuff
+
+    ∇ {(success outputFilenames)}←ProcessFiles_(filenames sourcePath targetPath parms);thisFile;parms_;buff
+      success←outputFilenames←⍬
+      :For thisFile :In filenames
+          parms_←parms
+          parms_.inputFilename←sourcePath,'/',thisFile
+          parms_.outputFilename←targetPath,'/',({⍵↓⍨-(⌽⍵)⍳'.'}thisFile),'.html'
+          :Trap 6
+              Convert parms_
+              buff←1 parms_.outputFilename
+          :Else
+              buff←⊂0 'Source file not found'
+          :EndTrap
+          success,←1⊃buff
+          outputFilenames,←buff[2]
+      :EndFor
+    ∇
+
+    ∇ value←{default}Switch(switches switchName);flag
+    ⍝ Return modifier's value if specified and default otherwise if available or throw error.
+      value←0                               ⍝ invalid modifiers are considered not there
+      :Trap 3
+          value←2⊃switches[switches[;0]⍳⊂,switchName;]
+      :EndTrap
+      :If 0≠⎕NC'default'                    ⍝ even undefined modifiers can be defaulted
+          :If 0≡value
+              value←default                 ⍝ use default if not set
+          :ElseIf (1≢value)∧2|⎕DR,default   ⍝ num is 11, x3, 645, 1287, 1289
+              (flag value)←⎕VFI value              ⍝ make numeric if default is also numeric
+              ('value must be numeric ',switchName)⎕SIGNAL 11↓⍨∧/flag   ⍝ <if> unavailable
+          :EndIf
+      :EndIf
+    ∇
+
+:EndClass

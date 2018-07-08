@@ -1,0 +1,15 @@
+ e;folders;thisFolder;filename
+⍝ Edit the user command in the user command folder
+ folders←⎕SE.SALT.Settings'cmddir'
+ ((folders='∘')/folders)←';'
+ folders←';'##.APLTreeUtils.Split folders
+ filename←''
+ :For thisFolder :In folders
+     :If ##.FilesAndDirs.IsFile thisFolder,'\markdown2HTML.dyalog'
+         filename←'expand'##.FilesAndDirs.NormalizePath thisFolder,'\markdown2HTML.dyalog'
+         :Leave
+     :EndIf
+ :EndFor
+ 'User command script "Markdown2HTML.dyalog" not found'⎕SIGNAL 6/⍨0∊⍴folders
+ ⎕SE.UCMD'Notepad ',filename
+⍝Done
