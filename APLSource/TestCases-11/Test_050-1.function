@@ -1,0 +1,28 @@
+ R←Test_050(stopFlag batchFlag);⎕TRAP;list;success;errMsgs;tempFolder;result
+⍝ Execute "Help"
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder←∆TestFolder,'\',(↑⎕SI)
+ 'Create!'##.FilesAndDirs.CheckPath tempFolder
+ 'Markdown2HTML.dyalog'#.FilesAndDirs.CopyTo(tempFolder,'\Markdown2HTML.dyalog')
+ :If 17>↑(//)⎕VFI{⍵/⍨2>+\'.'=⍵}(1+⎕IO)⊃'#'⎕WG'APLVersion'
+     result←⎕SE.UCMD'?markdown2html'
+ :Else
+     result←⎕SE.UCMD'markdown2html -?'
+ :EndIf
+ →GoToTidyUp~∨/'For details enter'⍷∊result
+
+ :If 17>↑(//)⎕VFI{⍵/⍨2>+\'.'=⍵}(1+⎕IO)⊃'#'⎕WG'APLVersion'
+     result←⎕SE.UCMD'??markdown2html'
+ :Else
+     result←⎕SE.UCMD'markdown2html -??'
+ :EndIf
+ →GoToTidyUp~∨/'Takes one of'⍷∊result
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir tempFolder
+⍝Done

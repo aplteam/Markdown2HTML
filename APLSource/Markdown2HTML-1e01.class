@@ -1,15 +1,28 @@
 :Class  Markdown2HTML
 ⍝ ## Overview
-⍝ This class allows the conversion of one or many Markdown files (extension ".md")
-⍝ into HTML files, by default with the same name but ".html" as extension.
+⍝ This class can be used to convert one to many Markdown files (extension ".md")
+⍝ into HTML files, by default with the same name but ".html" as extension.\\
+⍝ The class MarkAPL is used for the conversion. It is one of the most powerful
+⍝ implementations of such a converter; for details see <https://github.com/aplteam/MarkAPL>\\
+⍝ The Markdown2HTML class is designed for being used via a desginated Dyalog user command, 
+⍝ though it can also be used independently.
 ⍝
-⍝ ## The workhorse: `Run`
-⍝ This is designed to be called as a Dyalog user command.
-⍝ It must be fed with a parameter space. This parameter space isthen passed on.
+⍝ ## The workhorse: `ProcessFiles`
+⍝ This function is designed to be called from a Dyalog user command.\\
+⍝ It must be fed with a parameter space. This parameter space is then passed on to MarkAPL.
 ⍝
-⍝ ## Convert
-⍝ This method is doing the real work. See there for details.
-⍝ It must be fed with a parameter space.
+⍝ ## Parameters
+⍝ The MarkAPL class comes with a set of suitable default parameters. That means you can create
+⍝ an HTML document without further ado. However, when those defaults don't work for you then
+⍝ you can change them. For details see <ftp://aplteam.com/APLTeam/MarkAPL.html#Parameters>.\\
+⍝ The MarkAPL class allows you to embedd parameters within the Markdown document itself.
+⍝ For details see 
+⍝ _[The Dyalog Cookbook](ftp://aplteam.com/APLTeam/MarkAPL.html#Embedding-parameters-with)_\\
+⍝ If neither the defaults nor embedding parameters into the document are suitable for you then 
+⍝ you can specify a configuration file instead. 
+⍝ You can also mix the two methods; note that parameters within the document take precedence.\\
+⍝ By calling `CreateParameterFile` you can create such a config file and make the necessary
+⍝ changes that suit your needs.
 ⍝
 ⍝ ## Requirements
 ⍝ This class requires Dyalog 15.0 Unicode or better.
@@ -20,30 +33,23 @@
 
     ∇ r←Version
       :Access Public Shared
-      r←(Last⍕⎕THIS)'0.0.1' '2018-07-06'
+      r←(Last⍕⎕THIS)'1.0.0' '2018-08-10'
     ∇
 
-    ∇ (success outputFilenames)←{css}ProcessFiles(filenames sourcePath targetPath);parms;bool;config
+    ∇ (success outputFilenames errMsgs)←{parms}ProcessFiles(filenames sourcePath targetPath);parms;bool;config
       :Access Shared Public
-      ⍝ Takes a Markdown file and converts it into an HTML file.\
-      ⍝ Needs at least the `filenames` (with or without extension) and the `sourcePath`.\
-      ⍝ If `filename` has no extension ".md" is assumed.\
-      ⍝ `filename` must not have a path.\
-      ⍝ `targetPath` is optional: if empty it defaults to `sorcePath`.\
-      ⍝ The left argument `css` is optional. When passed it must be one of:
-      ⍝ * `⍬`. Same as not defining it at all.
-      ⍝ * A parameter space that contains three variables:
-      ⍝   * `url`: points to where the following two live. This must be specified.
-      ⍝   * `screen`: name of a CSS file that carries the CSS rules for viewing the HTML.
-      ⍝     If this is not specified then a default takes place
-      ⍝   * `print`: name of a CSS file that carries the CSS rules for printing the HTML.
-      ⍝     If this is not specified then a default takes place
-      ⍝ Returns a two-item vector:
-      ⍝ [1] Vector of Booleans, 1 indicating sucess, 0 = failure.
-      ⍝ [2] Vector of either target filenames or error messages.
+      ⍝ Takes one or more Markdown files and converts them into an HTML file.\\
+      ⍝ Needs at least the `filenames` (with or without extension) and the `sourcePath`.\\
+      ⍝ If `filename` has no extension ".md" is assumed.\\
+      ⍝ `filename` must not have a path.\\
+      ⍝ `targetPath` is optional: if empty it defaults to `sorcePath`.\\
+      ⍝ Returns a three-item vector:
+      ⍝ 1. Vector of Booleans; 1 indicating sucess, 0 = failure.
+      ⍝ 2. Vector of target filenames.
+      ⍝ 3. Vector of empty vectors or error messages.
       ⍝ See the "Help" command (defined in the user command script) for more
-      ⍝ information on the switches available.
-      css←{0<⎕NC ⍵:⍎⍵ ⋄ ⍬}'css'
+      ⍝ information on the switches.
+      parms←{0<⎕NC ⍵:⍎⍵ ⋄ parms←##.MarkAPL.CreateParms}'parms'
       filenames←Nest filenames
       '"filenames" must be relative = no / allowed'⎕SIGNAL 11/⍨∨/¨'/\'∘∊¨filenames
       '`sourcePath` does not exist'⎕SIGNAL 11/⍨0=⎕NEXISTS sourcePath
@@ -51,26 +57,6 @@
       filenames←{'.'∊⍵:⍵ ⋄ ⍵,'.md'}¨filenames
       :If ∨/bool←~⎕NEXISTS¨(sourcePath,'/')∘,¨filenames
           11 ⎕SIGNAL⍨(⍕+/bool),' in "filenames" do not exist'
-      :EndIf
-      parms←##.MarkAPL.CreateParms
-      :If ⍬≢css
-          :If {2::0 ⋄ 1⊣⍵.⎕NL 2}css
-              parms.cssURL←css.url
-              :If 0=css.⎕NC'screenCSS'
-                  parms.screenCSS←'MarkAPL_screen.css'
-              :Else
-                  parms.screenCSS←css.screenCSS
-              :EndIf
-              :If 0=css.⎕NC'printCSS'
-                  parms.printCSS←'MarkAPL_print.css'
-              :Else
-                  parms.printCSS←css.printCSS
-              :EndIf
-          :Else
-              parms.cssURL←css
-          :EndIf
-      :Else
-          parms.cssURL←'C:\T\Projects\UserCommands\Markdown2HTML'  ⍝TODO⍝
       :EndIf
       :If 0∊⍴targetPath
           :If ##.FilesAndDirs.IsFile sourcePath,'\.Markdown2HTML'
@@ -81,32 +67,57 @@
           :EndIf
       :EndIf
       targetPath←'expand'##.FilesAndDirs.NormalizePath targetPath
-      (success outputFilenames)←ProcessFiles_ filenames sourcePath targetPath parms
+      parms.verbose←1
+      :If ⎕NULL≡parms.cssURL
+          parms.cssURL←##.FilesAndDirs.PWD
+      :EndIf
+      (success outputFilenames errMsgs)←ProcessFiles_ filenames sourcePath targetPath parms
     ∇
 
-    ∇ {html}←Convert ps
-    ⍝ Expects a parameter space `ps`, typically created by calling `MarkAPL.CreateParms`,
-    ⍝ and uses this to convert the Markdown input file into an HTML file.\
-    ⍝ If the input file cannot be found an error is thrown.
-    ⍝ Returns the html as result
+
+    ∇ {filename}←CreateParameterFile filename;parms;json;bool;names
+    ⍝ This creates a config file that is basically a JSON version of what MarkAPL.CreateParms creates.\\
+    ⍝ You can specify a filename but if it's empty then a file in the TEMP directory is created.\\
+    ⍝ The filename is returned as a shy argument.
       :Access Shared Public
-      :If ⎕NEXISTS ps.inputFilename
-          html←ps ##.MarkAPL.Markdown2HTML''
-      :Else
-          'File does not exist'⎕SIGNAL 6
+      parms←##.MarkAPL.CreateParms
+      filename←'.config'##.FilesAndDirs.GetTempFilename2⍣(0∊⍴filename)⊣filename
+      :If ∨/bool←⎕NULL≡¨parms.∆List[;2]
+          names←bool⌿parms.∆List[;1]
+          parms{⍺⍎⍵,'←''[Null]'''}¨names
       :EndIf
+      :If 15=↑(//)⎕VFI{⍵/⍨2>+\⍵='.'}2⊃'#'⎕WG'APLVersion'
+          json←{(7160⌶)⍵}¨↓parms.∆List
+      :Else
+          json←{⎕JSON ⍵}¨↓parms.∆List
+      :EndIf
+      WriteUtf8File filename json
     ∇
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝ Private stuff
 
-    ∇ {(success outputFilenames)}←ProcessFiles_(filenames sourcePath targetPath parms);thisFile;parms_;buff
-      success←outputFilenames←⍬
+    ∇ {errMsgs}←Convert ps;html;ns
+    ⍝ Expects a parameter space `ps`, typically created by calling `MarkAPL.CreateParms`,
+    ⍝ and uses this to convert the Markdown input file into an HTML file.\\
+    ⍝ If the input file cannot be found an error is thrown.\\
+    ⍝ Returns the html as result
+      :Access Shared Public
+      :If ⎕NEXISTS ps.inputFilename
+          (html ns)←ps ##.MarkAPL.Markdown2HTML''
+      :Else
+          'File does not exist'⎕SIGNAL 6
+      :EndIf
+      errMsgs←ns.report
+    ∇
+
+    ∇ {(success outputFilenames errMsgs)}←ProcessFiles_(filenames sourcePath targetPath parms);thisFile;parms_;buff
+      success←outputFilenames←errMsgs←⍬
       :For thisFile :In filenames
           parms_←parms
           parms_.inputFilename←sourcePath,'/',thisFile
           parms_.outputFilename←targetPath,'/',({⍵↓⍨-(⌽⍵)⍳'.'}thisFile),'.html'
           :Trap 6
-              Convert parms_
+              errMsgs,←⊂Convert parms_
               buff←1 parms_.outputFilename
           :Else
               buff←⊂0 'Source file not found'

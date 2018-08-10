@@ -1,0 +1,24 @@
+ R←Test_030(stopFlag batchFlag);⎕TRAP;parms;array;configFilename1;configFilename2;buff
+⍝ Test configuration file with a specific and a default filename.
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+
+ R←∆Failed
+
+ configFilename1←##.Markdown2HTML.CreateParameterFile''
+ parms←##.APLTreeUtils.ReadUtf8File configFilename1
+ array←∆ConvertData parms
+ →PassesIf parms≡∆ConvertData array
+
+ configFilename2←##.FilesAndDirs.GetTempFilename2''
+ buff←##.Markdown2HTML.CreateParameterFile configFilename2
+ →PassesIf buff≡configFilename2
+ parms←##.APLTreeUtils.ReadUtf8File configFilename2
+ array←∆ConvertData parms
+ →PassesIf parms≡∆ConvertData array
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.DeleteFile configFilename1 configFilename2
+⍝Done

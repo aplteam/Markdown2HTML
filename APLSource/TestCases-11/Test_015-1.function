@@ -1,0 +1,17 @@
+ R←Test_015(stopFlag batchFlag);⎕TRAP;list;success;errMsgs;tempFolder;result
+⍝ Process a folder with no markdown files.
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder←∆TestFolder,'\',(↑⎕SI)
+ 'Create!'##.FilesAndDirs.CheckPath tempFolder
+ {}⎕SE.SALT.Settings'cmddir ,',tempFolder
+ result←⎕SE.UCMD'Markdown2html ',tempFolder,'\*.md'
+ →GoToTidyUp~0∊⍴result
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir tempFolder
+⍝Done

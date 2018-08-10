@@ -1,0 +1,21 @@
+ R←Test_014(stopFlag batchFlag);⎕TRAP;list;success;errMsgs;tempFolder;result
+⍝ Process a folder with two markdown files with the extension ".md" but specified extension anyway.
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder←∆TestFolder,'\',(↑⎕SI)
+ 'Create!'##.FilesAndDirs.CheckPath tempFolder
+ 'Markdown2HTML.dyalog'#.FilesAndDirs.CopyTo(tempFolder,'\Markdown2HTML.dyalog')
+ 'TestDocs\readme.md'##.FilesAndDirs.CopyTo tempFolder,'\readme.md'
+ 'TestDocs\QuickIntro.md'##.FilesAndDirs.CopyTo tempFolder,'\QuickIntro.md'
+ result←⎕SE.UCMD'Markdown2html ',tempFolder,'\*.md'
+ →GoToTidyUp 2≠↑⍴result
+ →GoToTidyUp~result[;1]∆Match tempFolder∘,¨'\QuickIntro.html' '\readme.html'
+ →GoToTidyUp result[;0]≢1 1
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir tempFolder
+⍝Done

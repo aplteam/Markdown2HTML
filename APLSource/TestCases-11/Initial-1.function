@@ -1,6 +1,12 @@
- Initial
+ Initial;userCommandFolder
  #.FilesAndDirs.PolishCurrentDir
  #.Tester.EstablishHelpersIn ⎕THIS
  ∆TestFolder←##.FilesAndDirs.GetTempPath,'Markdown2HTML_Tests'
  Assert'Create!'##.FilesAndDirs.CheckPath ∆TestFolder
+ ∆DebugStatus←{⍵↓⍨⍵⍳' '}⎕SE.UCMD' udebug on'
+ userCommandFolder←∆TestFolder,'\usercommand'
+ 'Create!'##.FilesAndDirs.CheckPath userCommandFolder
+ 'Markdown2HTML.dyalog'#.FilesAndDirs.CopyTo(userCommandFolder,'\Markdown2HTML.dyalog')
+ ⎕←'<Markdown2HTML.dyalog> copied from .\ to ',userCommandFolder
+ {}⎕SE.SALT.Settings'cmddir ,',userCommandFolder
 ⍝Done

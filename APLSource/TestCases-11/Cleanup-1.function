@@ -1,4 +1,7 @@
  Cleanup
  ⎕DL 0.2
+ {}⎕SE.SALT.Settings'cmddir -reset'
+ {}⎕SE.UCMD' udebug ',∆DebugStatus
  ##.FilesAndDirs.RmDir ∆TestFolder
+ ⎕EX¨'∆TestFolder' '∆UserCommandFolder' '∆DebugStatus'
 ⍝Done

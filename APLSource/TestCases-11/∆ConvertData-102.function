@@ -1,0 +1,20 @@
+ r←∆ConvertData y
+⍝ `y` can be one of:
+⍝ * A matrix with two columens with each row specifying a name-value pair.
+⍝ * A vector of text vectors with the JSON representation of an APL array
+⍝ The junction is invers: any APL array is converted into JSON (vector of
+⍝ text vectors) and any JSON stuff is converted into a APL array (matrix).
+ :If 2=⍴⍴y
+     :If 15=↑(//)⎕VFI{⍵/⍨2>+\⍵='.'}1⊃'#'⎕WG'APLVersion'
+         r←{(7160⌶)⍵}¨↓y
+     :Else
+         r←{⎕JSON ⍵}¨↓y
+     :EndIf
+ :Else
+     :If 15=↑(//)⎕VFI{⍵/⍨2>+\⍵='.'}1⊃'#'⎕WG'APLVersion'
+         r←⊃{(7159⌶)⍵}¨y
+     :Else
+         r←⊃{⎕JSON ⍵}¨y
+     :EndIf
+ :EndIf
+⍝Done

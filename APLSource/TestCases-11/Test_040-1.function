@@ -1,0 +1,20 @@
+ R←Test_040(stopFlag batchFlag);⎕TRAP;tempFolder;result
+⍝ Test the user command as such with default settings.
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder←∆TestFolder,'\',(↑⎕SI)
+ 'Create!'##.FilesAndDirs.CheckPath tempFolder
+ 'Markdown2HTML.dyalog'#.FilesAndDirs.CopyTo(tempFolder,'\Markdown2HTML.dyalog')
+ 'TestDocs\readme.md'##.FilesAndDirs.CopyTo tempFolder,'\readme.md'
+ result←⎕SE.UCMD'Markdown2html ',tempFolder,'\readme.md'
+ →GoToTidyUp 1≠↑⍴result
+ →GoToTidyUp(↑result[0;1])≢tempFolder,'\readme.html'
+ →GoToTidyUp 0=##.FilesAndDirs.IsFile tempFolder,'\readme.html'
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir tempFolder
+⍝Done

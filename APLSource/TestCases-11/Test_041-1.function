@@ -1,0 +1,25 @@
+ R←Test_041(stopFlag batchFlag);⎕TRAP;tempFolder;result;configFile;config;html
+⍝ Test the user command with a dedicated config file specifying "title"
+⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
+ ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
+ R←∆Failed
+
+ tempFolder←∆TestFolder,'\',(↑⎕SI)
+ 'Create!'##.FilesAndDirs.CheckPath tempFolder
+ 'Markdown2HTML.dyalog'#.FilesAndDirs.CopyTo(tempFolder,'\Markdown2HTML.dyalog')
+ 'TestDocs\readme.md'##.FilesAndDirs.CopyTo tempFolder,'\readme.md'
+ configFile←⎕SE.UCMD'Markdown2HtmlParameterFile'
+ config←∆ConvertData ##.APLTreeUtils.ReadUtf8File configFile
+ config[config[;0]⍳⊂'title';1]←⊂'FOO'
+ ##.APLTreeUtils.WriteUtf8File configFile(∆ConvertData config)
+ result←⎕SE.UCMD'Markdown2html ',tempFolder,'\readme.md -parameterfile=',configFile
+ →GoToTidyUp(↑result[0;1])≢tempFolder,'\readme.html'
+ →GoToTidyUp 0=##.FilesAndDirs.IsFile tempFolder,'\readme.html'
+ html←##.APLTreeUtils.ReadUtf8File tempFolder,'\readme.html'
+ →GoToTidyUp'FOO'≢'</title'{⍵↑⍨1⍳⍨⍺⍷⍵}'<title'{(1+⍴⍺)↓⍵↓⍨1⍳⍨(⍺,'>')⍷⍵}∊html
+
+ R←∆OK
+
+∆TidyUp:
+ ##.FilesAndDirs.RmDir tempFolder
+⍝Done

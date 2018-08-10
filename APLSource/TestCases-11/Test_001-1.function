@@ -1,4 +1,4 @@
- R←Test_001(stopFlag batchFlag);⎕TRAP;filename;tempFolder;list;success
+ R←Test_001(stopFlag batchFlag);⎕TRAP;filename;tempFolder;list;success;errMsgs
 ⍝ Process a file without specifying an extension (default is .md) with just the source folder.
 ⍝ R gets one of: 0=Okay, 1=test case failed, ¯1=test case was not executed due to the "batchFlag"
  ⎕TRAP←(999 'C' '. ⍝ Deliberate error')(0 'N')
@@ -7,7 +7,7 @@
  tempFolder←∆CreateFolder↑⎕SI
  filename←tempFolder,'\readme'
  'TestDocs\readme.md'##.FilesAndDirs.CopyTo filename,'.md'
- (success list)←##.Markdown2HTML.ProcessFiles'readme'tempFolder ⍬
+ (success list errMsgs)←##.Markdown2HTML.ProcessFiles'readme'tempFolder ⍬
  →GoToTidyUp 0=##.FilesAndDirs.IsFile filename,'.html'
 
  R←∆OK
