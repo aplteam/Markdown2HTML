@@ -31,13 +31,13 @@ Note that `%HomePath%` defaults to `C:\Users\{yourName}\`. `{yourname}` is what 
 
 Putting the user command into this folder has an advantage and a disadvantage:
 
-Pro
+* Pro
 
-: It works out of the box: just copy the stuff over, start an instance of Dyalog 17.0 and the user command is available.
+  It works out of the box: just copy the stuff over, start an instance of Dyalog 17.0 and the user command is available.
 
-Cons
+* Cons
 
-: You have to do the same things for every user that's supposed to have the user command at their disposal.
+  You have to do the same things for every user that's supposed to have the user command at their disposal.
 
 
 ### Older version than 17.0
