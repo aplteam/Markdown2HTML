@@ -1,23 +1,21 @@
 ﻿:Namespace  Markdown2HTML
 ⍝ Designed to convert either a single file or all files in a directory from *.md to *.html
-⍝ Needs a directory "Markdown2HTML" where the user command lives holding the workspace and
-⍝ the CSS files needed for the conversion.
-⍝ The main purpose of this user command is to be called by a Make process when Markdown files
-⍝ need to be converted into HTML files for the final package.
-⍝ Kai Jaeger
-⍝ Version 0.0.18 from 2017-07-29
-⍝ * Now honours any .Markdown2HTML file
+⍝ Needs a directory "Markdown2HTML" as a sibling of the user command lives holding the
+⍝ workspace and the CSS files needed for the conversion.\\
+⍝ The main purpose of this user command is to be called by a `Make` process when Markdown
+⍝ files need to be converted into HTML files for the final package, but of course it can
+⍝ also be used to "manually" convert a particular Markdown file into an HTML file.\\
+⍝ Kai Jaeger\\
+⍝ Version 1.1.0 from 2018-09-09\\
 
     ∇ r←List;⎕IO;⎕ML
       ⎕IO←⎕ML←1
-      r←⎕NS¨2⍴⊂''
-      r.Name←'Markdown2HTML' 'Markdown2HTMLConfigFile'
-      r[1].Desc←⊂'Takes the name of a Markdown file or a directory holding *.md files and converts it/them to HTML5.'
-      r[2].Desc←⊂'Creates a config file for the ]Markdown2HTML user command and returns its name.'
+      r←⎕NS¨1⍴⊂''
+      r.Name←⊂'Markdown2HTML'
+      r[1].Desc←⊂'Takes the name of a Markdown file or a directory holding *.md files and converts it/them to HTML5 files.'
       r.Group←⊂'APLTree'
      ⍝ Parsing rules:
-      r[1].Parse←'1 -configfile='
-      r[2].Parse←'-filename='
+      r[1].Parse←'1s -parameterfile= -createParameterFile -version'
     ∇
 
     ∇ r←Run(Cmd Args);home;rf
@@ -31,19 +29,21 @@
           rf←⎕SE.⎕NS''
           rf.⎕CY home,'Markdown2HTML\Markdown2HTML'
       :EndIf
-      :Select Cmd
-      :Case 'Markdown2HTML'
+      CheckForUpdatedMarkAPL rf(home,'Markdown2HTML')
+      :If 2⊃Args.SwD[({0(819⌶)⊣⍵}¨Args.SwD[;1])⍳⊂'createparameterfile';]
+          r←CreateParameterFile rf
+      :ElseIf 2⊃Args.SwD[({0(819⌶)⊣⍵}¨Args.SwD[;1])⍳⊂'version';]
+          r←ReportVersionNumbers rf
+      :Else
           r←Process rf Args
-      :Case 'Markdown2HTMLConfigFile'
-          r←CreateConfigFile rf
-      :EndSelect
+      :EndIf
     ∇
 
-    ∇ r←CreateConfigFile rf
-      r←rf.Markdown2HTML.CreateConfigFile''
+    ∇ r←CreateParameterFile rf
+      r←rf.Markdown2HTML.CreateParameterFile''
     ∇
 
-    ∇ r←Process(rf Args);filenames;path;cssParms;css;msg;arg;success;buff;target;parms;errMsgs;configFile
+    ∇ r←Process(rf Args);filenames;path;cssParms;css;msg;arg;success;buff;target;parms;errMsgs;parameterFile
       r←0 2⍴''
       arg←↑Args.Arguments
       :If rf.FilesAndDirs.IsDir{~'*'∊⍵:⍵ ⋄ ↑1 ⎕NPARTS ⍵}arg
@@ -83,10 +83,10 @@
               target←'expand'rf.FilesAndDirs.NormalizePath target,'\',buff
           :EndIf
       :EndIf
-      :If (,0)≡,configFile←Args.Switch'configfile'
+      :If (,0)≡,parameterFile←Args.Switch'parameterfile'
           parms←rf.MarkAPL.CreateParms
       :Else
-          parms←GetParmsFromConfigFile configFile
+          parms←GetParmsFromParameterFile parameterFile
       :EndIf
       :If parms.cssURL≡⎕NULL
           parms.cssURL←rf.FilesAndDirs.PWD
@@ -95,8 +95,8 @@
       r←success,[1.5]msg
     ∇
 
-    ∇ parms←GetParmsFromConfigFile filename;buff;bool
-⍝ `filename` is the name of a config file, typically created by calling MarkAPL.CreateParms
+    ∇ parms←GetParmsFromParameterFile filename;buff;bool
+⍝ `filename` is the name of a parameter file, typically created by calling MarkAPL.CreateParms
 ⍝ and then converting the result into JSON.
 ⍝ The JSON in the file will be converted to an APL array with any char vector `[Null]` becoming ⎕NULL.
       buff←rf.APLTreeUtils.ReadUtf8File filename
@@ -117,15 +117,35 @@
     ∇ r←level Help Cmd;⎕IO;⎕ML
       ⎕IO←1 ⋄ ⎕ML←1
       r←''
-      :Select Cmd
-      :Case 'Markdown2HTMLConfigFile'
-          r,←⊂'Creates a config file; this is a JSON version of what MarkAPL.CreateParms creates.'
-          r,←⊂'The config file is created in the TEMP folder.'
+      :Select 0(819⌶)Cmd
+      :Case 'markdown2htmlparameterfile'
+          r,←⊂'Creates a parameter file; this is a JSON version of what MarkAPL.CreateParms creates.'
+          r,←⊂'The parameter file is created in the TEMP folder.'
           r,←⊂'The filename is returned as result.'
-      :Case 'Markdown2HTML'
+      :Case 'markdown2html'
           :Select ⊃level
-          :CaseList 0 1 2
-              r←''
+          :Case 0
+              r,←⊂'This user command converts one to many markdown files into'
+              r,←⊂'HTML files with the help of the MarkAPL class.'
+              r,←⊂''
+              r,←⊂'If defaults do not suit ones need one can create a parameter'
+              r,←⊂'file with'
+              r,←⊂'      ]filename←Markdown2Html -createParameterFile'
+              r,←⊂'and then change the defaults in that file.'
+              r,←⊂'Note that when -createParameterFile is specified everything else is ignored.'
+              r,←⊂'That filename can then be passed with -parameterfile=<filename> as in:'
+              r,←⊂'      ]Markdown2Html <anyMarkdownFile> -parameterFile=<filename>'
+              r,←⊂'For details enter'
+              :If 17>⊃(//)⎕VFI{⍵/⍨2>+\'.'=⍵}(1+⎕IO)⊃'#'⎕WG'APLVersion'
+                  r,←⊂'      ]??Markdown2Html'
+              :Else
+                  r,←⊂'      ]Markdown2Html -??'
+              :EndIf
+              r,←⊂'With the flag -version you can get a report on the version number of:'
+              r,←⊂'* the Markdown2HTML script'
+              r,←⊂'* the MarkAPL class used for the conversion.'
+              r,←⊂'Note that -version, -parameterfile and -createparameterfile are mutually exclusive.'
+          :CaseList 1 2
               r,←⊂'Takes one of:'
               r,←⊂' * The name of a Markdown file;'
               r,←⊂'   That file is then converted into an HTML file.'
@@ -134,7 +154,7 @@
               r,←⊂''
               r,←⊂'If the filename has no extension then ".md" is assumed.'
               r,←⊂'For a folder you can, say, specify C:\MyFiles\*.markdown.'
-              r,←⊃'Note that you can only specify one extension.'
+              r,←⊂'Note that you can only specify one extension.'
               r,←⊂''
               r,←⊂'The output filename is the same as the input filename except that'
               r,←⊂'the extension will become ".html".'
@@ -142,8 +162,33 @@
               r,←⊂'The User Command returns a matrix with two columns:'
               r,←⊂'* [;1] = Boolean (1=success)'
               r,←⊂'* [;2] = Output filename'
+              r,←⊂''
+              r,←⊂'In case the folder specified (or hosting the specfied Markdown file)'
+              r,←⊂'contains a file .Markdown2HTML the contents is honoured. This can be'
+              r,←⊂'used to specify a folder the HTML files to be created will go into'
+              r,←⊂'(rather than becoming a sibling of the Markdown file).'
+              r,←⊂'For example, if the file .Markdown2HTML contains this:'
+              r,←⊂'..\'
+              r,←⊂'then the HTML file(s) will be saved in the parent directory.'
           :EndSelect
       :EndSelect
+    ∇
+
+    ∇ {r}←CheckForUpdatedMarkAPL(targetNS path);buff
+      r←⍬
+      :If targetNS.FilesAndDirs.IsFile path,'\Markapl.script'
+          buff←targetNS.APLTreeUtils.ReadUtf8File path,'\Markapl.script'
+          r←targetNS.⎕FIX buff
+          'Could not fix MarkAPL.script'⎕SIGNAL 11/⍨0∊⍴r
+          'Could not fix MarkAPL.script'⎕SIGNAL 11/⍨' '≠1↑0⍴⍕r
+      :EndIf
+     ⍝Done
+    ∇
+
+    ∇ r←ReportVersionNumbers rf
+      r←0 2⍴''
+      r⍪←'Markdown2HTML:'(2⊃rf.Markdown2HTML.Version)
+      r⍪←'MarkAPL'(2⊃rf.MarkAPL.Version)
     ∇
 
 :EndNamespace

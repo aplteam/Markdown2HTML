@@ -5,7 +5,7 @@
 
 The `Markdown2HTML` user command allows you to convert one or more Markdown text files to HTML files with ease.
 
-Strictly speaking `Markdown2HTML` comes with these things:
+`Markdown2HTML` comes with:
 
 1. A user command script that makes the stuff in the workspace useable from the user command framework.
 
@@ -25,9 +25,11 @@ Strictly speaking `Markdown2HTML` comes with these things:
 
 ### Version 17.0
 
-Under version 17.0 the recommended way of installing the user comnmand is to copy the script into the default folder for personal user commands which is `%HomePath\Documents\MyUCMDs`.
+Under version 17.0 the recommended way of installing the user comnmand is to copy the script into the default folder for personal user commands which is:
 
-Note that `%HomePath%` defaults to `C:\Users\{yourName}\`. `{yourname}` is what `⎕AN` returns in an APL session.
+`%HomeDrive%%HomePath%\Documents\MyUCMDs`.
+
+Note that `%HomePath%` defaults to `\Users\{yourName}\`. `{yourname}` is what `⎕AN` returns in an APL session.
 
 Putting the user command into this folder has an advantage and a disadvantage:
 
@@ -40,7 +42,7 @@ Putting the user command into this folder has an advantage and a disadvantage:
   You have to do the same things for every user that's supposed to have the user command at their disposal.
 
 
-### Older version than 17.0
+### Older versions than 17.0
 
 Because of the restrictions of the user command framework you cannot install a user command like `Markdown2HTML` in the default folder `SALT\Spice`.
 
@@ -48,6 +50,6 @@ It is therefore necessary to save them elsewhere and add the path the the SALT p
 
 ## Updates
 
-The fact that `Markdown2HTML`'s functionality is in a workspace has a nasty side effect: when a new version of the MarkAPL class becomes available there is no other way to update it then to create a new version of `Markdown2HTML`.
+With version 1.1 the user command checks whether there is a file `MarkAPL.script` in the folder Markdown2HTML\. After installation there is no such file. If it does exist, the file is assumed to contain a version of the MarkAPL class, presumably a "better" one then what's saved in the workspace.
 
-This issue will be addressed as soon as the APL packet manager is available.
+Note that the name is `MarkAPL.script` rather then `MarkAPL.dyalog` because the latter would be considered to be a user command script by the user command framework; therefore when you update it yourself from <https://github.com/aplteam/MarkAPL> in order to make sure that the latest version of MarkAPL is used you must rename it from `MarkAPL.dyalog` to `MarkAPL.script`.

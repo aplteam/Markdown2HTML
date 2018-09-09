@@ -17,11 +17,11 @@
 ⍝ you can change them. For details see <ftp://aplteam.com/APLTeam/MarkAPL.html#Parameters>.\\
 ⍝ The MarkAPL class allows you to embedd parameters within the Markdown document itself.
 ⍝ For details see 
-⍝ _[The Dyalog Cookbook](ftp://aplteam.com/APLTeam/MarkAPL.html#Embedding-parameters-with)_\\
+⍝ [MarkAPL's online documentation](ftp://aplteam.com/APLTeam/MarkAPL.html#Embedding-parameters-with).\\
 ⍝ If neither the defaults nor embedding parameters into the document are suitable for you then 
 ⍝ you can specify a configuration file instead. 
 ⍝ You can also mix the two methods; note that parameters within the document take precedence.\\
-⍝ By calling `CreateParameterFile` you can create such a config file and make the necessary
+⍝ By calling `CreateParameterFile` you can create such a config file and then make the necessary
 ⍝ changes that suit your needs.
 ⍝
 ⍝ ## Requirements
@@ -33,7 +33,7 @@
 
     ∇ r←Version
       :Access Public Shared
-      r←(Last⍕⎕THIS)'1.0.0' '2018-08-10'
+      r←(Last⍕⎕THIS)'1.1.0' '2018-09-09'
     ∇
 
     ∇ (success outputFilenames errMsgs)←{parms}ProcessFiles(filenames sourcePath targetPath);parms;bool;config
@@ -42,7 +42,7 @@
       ⍝ Needs at least the `filenames` (with or without extension) and the `sourcePath`.\\
       ⍝ If `filename` has no extension ".md" is assumed.\\
       ⍝ `filename` must not have a path.\\
-      ⍝ `targetPath` is optional: if empty it defaults to `sorcePath`.\\
+      ⍝ `targetPath` is optional: if empty it defaults to `sourcePath`.\\
       ⍝ Returns a three-item vector:
       ⍝ 1. Vector of Booleans; 1 indicating sucess, 0 = failure.
       ⍝ 2. Vector of target filenames.
@@ -76,7 +76,7 @@
 
 
     ∇ {filename}←CreateParameterFile filename;parms;json;bool;names
-    ⍝ This creates a config file that is basically a JSON version of what MarkAPL.CreateParms creates.\\
+    ⍝ Creates a config file that is basically a JSON version of what `MarkAPL.CreateParms` creates.\\
     ⍝ You can specify a filename but if it's empty then a file in the TEMP directory is created.\\
     ⍝ The filename is returned as a shy argument.
       :Access Shared Public
@@ -94,8 +94,6 @@
       WriteUtf8File filename json
     ∇
 
-⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝ Private stuff
-
     ∇ {errMsgs}←Convert ps;html;ns
     ⍝ Expects a parameter space `ps`, typically created by calling `MarkAPL.CreateParms`,
     ⍝ and uses this to convert the Markdown input file into an HTML file.\\
@@ -109,6 +107,8 @@
       :EndIf
       errMsgs←ns.report
     ∇
+    
+⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝ Private stuff
 
     ∇ {(success outputFilenames errMsgs)}←ProcessFiles_(filenames sourcePath targetPath parms);thisFile;parms_;buff
       success←outputFilenames←errMsgs←⍬
