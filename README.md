@@ -5,6 +5,8 @@
 
 The `Markdown2HTML` user command allows you to convert one or more Markdown text files to HTML files with ease.
 
+The user command also allows you to convert any markdown file under program control using the [MarkAPL](https://github.com/aplteam/markapl) class.
+
 `Markdown2HTML` comes with:
 
 1. A user command script that makes the stuff in the workspace useable from the user command framework.
@@ -46,10 +48,10 @@ Putting the user command into this folder has an advantage and a disadvantage:
 
 Because of the restrictions of the user command framework you cannot install a user command like `Markdown2HTML` in the default folder `SALT\Spice`.
 
-It is therefore necessary to save them elsewhere and add the path the the SALT path scanned for user commands. See the SALT documentation for details.
+It is therefore necessary to save them elsewhere and add the path to the SALT path scanned for user commands. See the SALT documentation for details.
 
 ## Updates
 
 With version 1.1 the user command checks whether there is a file `MarkAPL.script` in the folder Markdown2HTML\. After installation there is no such file. If it does exist, the file is assumed to contain a version of the MarkAPL class, presumably a "better" one then what's saved in the workspace.
 
-Note that the name is `MarkAPL.script` rather then `MarkAPL.dyalog` because the latter would be considered to be a user command script by the user command framework; therefore when you update it yourself from <https://github.com/aplteam/MarkAPL> in order to make sure that the latest version of MarkAPL is used you must rename it from `MarkAPL.dyalog` to `MarkAPL.script`.
+Note that the name is `MarkAPL.script` rather then `MarkAPL.dyalog` because the latter would considered to be a user command script by the user command framework; therefore when you update it yourself from <https://github.com/aplteam/MarkAPL> in order to make sure that the latest version of MarkAPL is used you **must** rename it from `MarkAPL.dyalog` to `MarkAPL.script` to avoid SALT trying to treat it as a user command.
