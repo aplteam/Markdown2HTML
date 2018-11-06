@@ -6,7 +6,7 @@
 ⍝ files need to be converted into HTML files for the final package, but of course it can
 ⍝ also be used to "manually" convert a particular Markdown file into an HTML file.\\
 ⍝ Kai Jaeger\\
-⍝ Version 1.1.0 from 2018-09-09\\
+⍝ Version 1.1.1 from 2018-11-06\\
 
     ∇ r←List;⎕IO;⎕ML
       ⎕IO←⎕ML←1
@@ -89,7 +89,11 @@
           parms←GetParmsFromParameterFile parameterFile
       :EndIf
       :If parms.cssURL≡⎕NULL
-          parms.cssURL←rf.FilesAndDirs.PWD
+          :If 2=##.⎕NC'SourceFile'
+              parms.cssURL←##.SourceFile
+          :Else
+              parms.cssURL←rf.FilesAndDirs.PWD
+          :EndIf
       :EndIf
       (success msg errMsgs)←parms rf.Markdown2HTML.ProcessFiles filenames path target
       r←success,[1.5]msg

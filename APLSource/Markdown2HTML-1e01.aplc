@@ -68,9 +68,9 @@
       :EndIf
       targetPath←'expand'##.FilesAndDirs.NormalizePath targetPath
       parms.verbose←1
-      :If ⎕NULL≡parms.cssURL
+      :If ⎕NULL≡parms.cssURL         
           parms.cssURL←##.FilesAndDirs.PWD
-      :EndIf
+    :EndIf
       (success outputFilenames errMsgs)←ProcessFiles_ filenames sourcePath targetPath parms
     ∇
 
