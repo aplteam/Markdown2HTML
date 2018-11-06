@@ -4,7 +4,7 @@
 ⍝ into HTML files, by default with the same name but ".html" as extension.\\
 ⍝ The class MarkAPL is used for the conversion. It is one of the most powerful
 ⍝ implementations of such a converter; for details see <https://github.com/aplteam/MarkAPL>\\
-⍝ The Markdown2HTML class is designed for being used via a desginated Dyalog user command, 
+⍝ The Markdown2HTML class is designed for being used via a desginated Dyalog user command,
 ⍝ though it can also be used independently.
 ⍝
 ⍝ ## The workhorse: `ProcessFiles`
@@ -16,10 +16,10 @@
 ⍝ an HTML document without further ado. However, when those defaults don't work for you then
 ⍝ you can change them. For details see <ftp://aplteam.com/APLTeam/MarkAPL.html#Parameters>.\\
 ⍝ The MarkAPL class allows you to embedd parameters within the Markdown document itself.
-⍝ For details see 
+⍝ For details see
 ⍝ [MarkAPL's online documentation](ftp://aplteam.com/APLTeam/MarkAPL.html#Embedding-parameters-with).\\
-⍝ If neither the defaults nor embedding parameters into the document are suitable for you then 
-⍝ you can specify a configuration file instead. 
+⍝ If neither the defaults nor embedding parameters into the document are suitable for you then
+⍝ you can specify a configuration file instead.
 ⍝ You can also mix the two methods; note that parameters within the document take precedence.\\
 ⍝ By calling `CreateParameterFile` you can create such a config file and then make the necessary
 ⍝ changes that suit your needs.
@@ -33,7 +33,14 @@
 
     ∇ r←Version
       :Access Public Shared
-      r←(Last⍕⎕THIS)'1.1.0' '2018-09-09'
+      r←(Last⍕⎕THIS)'1.1.1' '2018-11-06'
+    ∇
+
+    ∇ r←History
+      :Access Public Shared
+      ⍝ * 1.1.1
+      ⍝   * Bug in the user command script fixed that prevented Markdown2HTML to find CSS files.
+      ⍝   * Method `History` added.
     ∇
 
     ∇ (success outputFilenames errMsgs)←{parms}ProcessFiles(filenames sourcePath targetPath);parms;bool;config
@@ -68,9 +75,9 @@
       :EndIf
       targetPath←'expand'##.FilesAndDirs.NormalizePath targetPath
       parms.verbose←1
-      :If ⎕NULL≡parms.cssURL         
+      :If ⎕NULL≡parms.cssURL
           parms.cssURL←##.FilesAndDirs.PWD
-    :EndIf
+      :EndIf
       (success outputFilenames errMsgs)←ProcessFiles_ filenames sourcePath targetPath parms
     ∇
 
@@ -107,7 +114,7 @@
       :EndIf
       errMsgs←ns.report
     ∇
-    
+
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝ Private stuff
 
     ∇ {(success outputFilenames errMsgs)}←ProcessFiles_(filenames sourcePath targetPath parms);thisFile;parms_;buff
