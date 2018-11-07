@@ -33,7 +33,7 @@
 
     ∇ r←Version
       :Access Public Shared
-      r←(Last⍕⎕THIS)'1.1.1' '2018-11-06'
+      r←(Last⍕⎕THIS)'1.1.1.1' '2018-11-06'
     ∇
 
     ∇ r←History
