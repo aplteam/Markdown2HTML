@@ -41,6 +41,8 @@
       ⍝ * 1.1.1
       ⍝   * Bug in the user command script fixed that prevented Markdown2HTML to find CSS files.
       ⍝   * Method `History` added.
+      ⍝\\
+      ⍝ For information regarding older versions see <https://github.com/aplteam/Markdown2HTML/releases>
     ∇
 
     ∇ (success outputFilenames errMsgs)←{parms}ProcessFiles(filenames sourcePath targetPath);parms;bool;config
